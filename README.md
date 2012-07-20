@@ -51,6 +51,22 @@ that `wp_head()` is called in the document head.
 All the standard LESS features are supported as well as @import rules anywhere
 within the file.
 
+### Alternative usage with the less.js parser
+
+Your .less files can be compiled on the client side using the less.js compiler.
+
+```php
+<?php
+
+// Include the class (unless you are using the script as a plugin)
+require_once( 'wp-less/wp-less.php' );
+
+//add the use_js() method of wp_less to the init hook
+add_action( 'init', array( 'wp_less', 'use_js' ), 20 );
+
+?>
+```
+
 ### Passing in variables from PHP
 
 You can now pass variables into your .less files using one of two hooks:

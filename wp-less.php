@@ -39,6 +39,14 @@ class wp_less {
 	 * @type object
 	 */
 	protected static $instance = null;
+    
+    
+    /**
+	 * The method we are going to use to parse the .less files.
+	 *
+	 * @type string LESS|PHP
+	 */
+    public static $compile_method = 'PHP';
 
 
 	/**
@@ -62,6 +70,7 @@ class wp_less {
 	 */
 	public function __construct() {
 
+        // default behaviour is to use the wp_filter() method to add the WordPress filters to process LESS with lessphp 
         $this->wp_filters();
 		
 	}
@@ -80,6 +89,46 @@ class wp_less {
 		// editor stylesheet URLs are concatenated and run through this filter
 		add_filter( 'mce_css', array( $this, 'parse_editor_stylesheets' ), 100000 );
 	}
+    
+    
+    /**
+	 * Use less.js to compile LESS
+	 *
+	 * @return bool    True on success
+	 */
+	public function use_js() {
+        
+        self::$compile_method = 'JS';
+        
+        // register/enque less.js script
+        wp_register_script( 'less', 'http://www.simonthepiman.co.uk/wp-content/themes/bones/library/wp-less/less.js', array(), NULL, true );
+        wp_enqueue_script( 'less' );
+        
+        // add rel="stylesheet/less" to .less registered styles
+        add_filter( 'style_loader_tag', array( 'wp_less', 'add_less_rel') );
+        
+        return true;
+	}
+    
+    
+
+    /**
+     * Use less.js to process LESS
+	 *
+	 * @param String $tag "<link rel='text/css' type='text/css' href='styles.less'>"
+	 *
+	 * @return $tag
+	 */
+    public function add_less_rel($tag){
+      
+      if ( preg_match('#\.less#', $tag) ){
+          
+          $tag = preg_replace( "#['\"]stylesheet['\"]#" , "'stylesheet/less'", $tag );
+          
+      }
+    
+      return $tag;
+    }
 
 
 	/**
@@ -91,6 +140,10 @@ class wp_less {
 	 * @return String    URL of the compiled stylesheet
 	 */
 	public function parse_stylesheet( $src, $handle ) {
+        
+        // only if we are using PHP
+		if ( self::$compile_method !== 'PHP'  )
+			return $src;
 
 		// we only want to handle .less files
 		if ( ! preg_match( "/\.less(\.php)?$/", preg_replace( "/\?.*$/", "", $src ) ) )
@@ -141,6 +194,10 @@ class wp_less {
 	 * @return String    New comma separated list of CSS file URLs
 	 */
 	public function parse_editor_stylesheets( $mce_css ) {
+        
+        // only if we are using PHP
+    	if ( self::$compile_method !== 'PHP'  )
+			return $mce_css;
 
 		// extract CSS file URLs
 		$style_sheets = explode( ",", $mce_css );
