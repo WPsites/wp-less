@@ -62,6 +62,18 @@ class wp_less {
 	 */
 	public function __construct() {
 
+        $this->wp_filters();
+		
+	}
+    
+
+    /**
+	 * Add WordPress filters to handle the .less files
+	 *
+	 * @return void
+	 */
+	public function wp_filters() {
+
 		// every CSS file URL gets passed through this filter
 		add_filter( 'style_loader_src', array( $this, 'parse_stylesheet' ), 100000, 2 );
 
