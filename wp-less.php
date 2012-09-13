@@ -101,7 +101,7 @@ class wp_less {
         self::$compile_method = 'JS';
         
         // register/enque less.js script
-        wp_register_script( 'less', 'http://www.simonthepiman.co.uk/wp-content/themes/bones/library/wp-less/less.js', array(), NULL, true );
+        wp_register_script( 'less', get_stylesheet_directory_uri() . '/library/wp-less/less.js', array(), NULL, true );
         wp_enqueue_script( 'less' );
         
         // add rel="stylesheet/less" to .less registered styles
