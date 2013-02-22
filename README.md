@@ -4,20 +4,20 @@ LESS is an abstraction layer that adds some very powerful features to CSS. It
 will speed up your development process and make your life that much easier. Find
 out more from the links below and then head on back.
 
-The addon I've written allows you to write and edit .less files directly and
+The addon allows you to write and edit `.less` files directly and
 have WordPress do the job of compiling and caching the resulting CSS. It
-eliminates the extra step of having to compile the .less files into CSS yourself
+eliminates the extra step of having to compile the `.less` files into CSS yourself
 before deploying them.
 
 ## Installation:
 
-If you are using git to clone the repository do the following:
+If you are using git to clone the repository, do the following:
 
     git clone git://github.com/WPsites/wp-less.git wp-less
     git submodule update --init
 
-If you are downloading the zip or tar don't forget to download the lessphp
-dependency too https://github.com/leafo/lessphp and copy it into the `lessc`
+If you are downloading the `.zip` or `.tar`, don't forget to download the [lessphp
+dependency too](https://github.com/leafo/lessphp) and copy it into the `lessc`
 folder.
 
 ## Usage:
@@ -42,13 +42,12 @@ add_editor_style( 'editor-style.less' );
 ?>
 ```
 
-Any registered styles with the .less suffix will be compiled and the file URL
-rewritten.
+Any registered styles with the `.less` suffix will be compiled and the file URL rewritten.
 
-You won't need a link to your main style sheet in header.php, just make sure
+You won't need a link to your main style sheet in `header.php`. Just make sure
 that `wp_head()` is called in the document head.
 
-All the standard LESS features are supported as well as @import rules anywhere
+All the standard LESS features are supported as well as `@import` rules anywhere
 within the file.
 
 ### Alternative usage with the less.js parser
@@ -69,7 +68,8 @@ add_action( 'init', array( 'wp_less', 'use_js' ), 20 );
 
 ### Passing in variables from PHP
 
-You can now pass variables into your .less files using one of two hooks:
+You can pass variables into your `.less` files using the `less_vars` hook or with the
+functions defined in the PHP Interface section:
 
 ```php
 <?php
@@ -85,30 +85,76 @@ function my_less_vars( $vars, $handle ) {
 ?>
 ```
 
-Within your .less files you can use the variable as if you had declared it in
-the stylesheet eg:
+Within your `.less` files you can use the variable as if you had declared it in the stylesheet.
+For e.g.:
 
 ```css
 body { color: @color; }
 ```
 
-*There is a default variable* you can use without worrying about the above code
-called `@themeurl`:
+### Default variables
+
+*There are 2 default variables* you can use without worrying about the above code:
+
+**`@themeurl`** is the URL of the current theme directory:
 
 ```css
 body { background-image: url(@{themeurl}/images/background.png); }
 ```
 
-This is important because you can't use relative paths - the compiled CSS is
+*`@lessurl`** is the URL of the enqueued LESS file (this does not change inside imported files):
+
+```css
+.plugin-title { background-image: url(@{lessurl}/images/icon.png); }
+```
+
+`@lessurl` is useful in those cases where you have .less files inside plugins or
+other non theme folder locations.
+
+It is important to use these because you can't use relative paths - the compiled CSS is
 stored in the uploads folder as it is the only place you can guarantee being
-able to write to in any WordPress installation. As a result relative URLs will
+able to write to in any given WordPress installation. As a result relative URLs will
 break.
+
+### PHP interface
+
+`register_less_function()` allows you to create additional less compiler functions
+for use in your stylesheet without having to touch the `lessc` class yourself.
+
+```php
+register_less_function( 'double', function( $args ) {
+    list( $type, $value, $unit ) = $args;
+	return array( $type, $value*2, $unit );
+} );
+```
+
+`unregister_less_function()` works in a similar way but unregisters any compiler
+functions passed to it by name.
+
+```php
+unregister_less_function( 'double' );
+```
+
+`add_less_var()` makes it easy to create or modify variables passed into the
+compiler. Both arguments should be a string, as `lessc` will work out the type of
+variable it is.
+
+```php
+add_less_var( 'brandcolour', '#ec6704' );
+```
+
+`remove_less_var()` is the inverse of `add_less_var()` and only requires the
+variable name to remove.
+
+```php
+remove_less_var( 'brandcolour' );
+```
 
 ## Further Reading
 
-[Read the LESS.js documentation here](http://lesscss.org/)
+[Read the LESS.js documentation here](http://lesscss.org/).
 
-For documenation specific to the PHP parser: http://leafo.net/lessphp/docs/
+Read the documentation [specific to the PHP parser here](http://leafo.net/lessphp/docs/=.
 
 
 ## Contributors
@@ -117,7 +163,8 @@ Big massive thanks to those whose contributions and discussion has helped to imp
 
 * [Tom Willmot](https://github.com/willmot)
 * [Franz Josef Kaiser](https://github.com/franz-josef-kaiser)
+* [Rarst](https://github.com/rarst)
 
 ## License
 
-The software is licensed under the [MIT Licence](http://www.opensource.org/licenses/mit-license.php)
+The software is licensed under the [MIT Licence](http://www.opensource.org/licenses/mit-license.php).
